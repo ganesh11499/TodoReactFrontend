@@ -1,6 +1,61 @@
-import { Link } from "react-router-dom";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { loginUser } from "../../service/authService";
 
 export default function Login() {
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+
+  const [formData,setFormData] = useState({
+    email : "",
+    password : ""
+  });
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+
+    setFormData({
+      ...formData,
+      [e.target.name] : e.target.value
+    });
+
+    console.log(formData, "formData");
+
+  };
+
+  const handleLogin = async(e: React.FormEvent) => {
+    e.preventDefault();
+
+    try {
+      setLoading(true);
+
+      const response = await loginUser(formData);
+
+      localStorage.setItem(
+        "token",
+        response.token
+      );
+
+      localStorage.setItem(
+        "user",
+        JSON.stringify(response)
+      );
+
+      navigate("/dashboard");
+      
+    } catch (error : any) {
+      alert(
+         error?.response?.data?.message ||
+          "Login Failed"
+      )
+    }finally{
+      setLoading(false);
+    }
+  }
+
+
+
+
+
   return (
     <div className="min-h-screen bg-slate-100 flex items-center justify-center px-4">
       <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8">
@@ -14,7 +69,7 @@ export default function Login() {
           </p>
         </div>
 
-        <form className="space-y-5">
+        <form className="space-y-5" onSubmit={handleLogin}>
           <div>
             <label className="block text-sm font-medium mb-2">
               Email
@@ -22,6 +77,9 @@ export default function Login() {
 
             <input
               type="email"
+              name = "email"
+              value={formData.email}
+              onChange={handleChange}
               placeholder="Enter your email"
               className="w-full border border-slate-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-indigo-500 outline-none"
             />
@@ -35,6 +93,9 @@ export default function Login() {
             <input
               type="password"
               placeholder="Enter password"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
               className="w-full border border-slate-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-indigo-500 outline-none"
             />
           </div>
@@ -55,9 +116,10 @@ export default function Login() {
 
           <button
             type="submit"
+            disabled={loading}
             className="w-full bg-indigo-600 text-white py-3 rounded-lg hover:bg-indigo-700 transition"
           >
-            Login
+           {loading ? "Logging In..." : "Login"}
           </button>
         </form>
 

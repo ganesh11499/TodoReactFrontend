@@ -4,6 +4,8 @@ import {
   Pencil,
   Trash2,
 } from "lucide-react";
+import TodoModal from "../modals/TodoModal";
+import { saveTodo } from "../../service/todoService";
 
 interface Task {
   id: number;
@@ -38,8 +40,10 @@ const data: Task[] = [
 ];
 
 export default function Dashboard() {
+  const [isLoading, setIsLoading] = useState(false)
   const [activeTab, setActiveTab] =
     useState("All");
+  const [open, setOpen] = useState(false);  
 
   const filteredData =
     activeTab === "All"
@@ -64,6 +68,29 @@ export default function Dashboard() {
     }
   };
 
+  const handleOpen = () => {
+    setOpen(true);
+  }
+
+  const handleSaveTodo = async (todoData: any) => {
+  try {
+    setIsLoading(true)
+    console.log(todoData);
+    const response = await saveTodo(todoData);
+
+    console.log(response, "response")
+    
+    alert("Todo Saved Successfully");
+
+    setOpen(false);
+  } catch (error) {
+    console.error(error);
+  }finally{
+    setIsLoading(false)
+  }
+};
+
+
   return (
     <div className="bg-white rounded-xl shadow-md p-5">
       
@@ -73,9 +100,16 @@ export default function Dashboard() {
           Task Management
         </h2>
 
-        <button className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700">
+        <button className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700" onClick={handleOpen}>
           + Add Task
         </button>
+
+        <TodoModal
+        isOpen={open}
+        onClose={() => setOpen(false)}
+        onSave={handleSaveTodo}
+        isLoading={isLoading}>
+        </TodoModal>
       </div>
 
       {/* Tabs */}
