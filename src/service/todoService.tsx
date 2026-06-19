@@ -11,3 +11,11 @@ export const saveTodo = async (
 
   return response.data;
 };
+
+export const getTodoList = async (
+  page : number,
+  size : number,
+  status? : string
+) =>{
+  return api.get(`/todos?page=${page}&size=${size}&status=${status}`)
+}

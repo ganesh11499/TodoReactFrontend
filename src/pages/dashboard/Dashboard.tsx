@@ -1,49 +1,68 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Eye,
   Pencil,
   Trash2,
 } from "lucide-react";
 import TodoModal from "../modals/TodoModal";
-import { saveTodo } from "../../service/todoService";
+import { getTodoList, saveTodo } from "../../service/todoService";
+import Pagination from "../../components/pagination";
 
 interface Task {
   id: number;
   title: string;
-  assignedTo: string;
   dueDate: string;
   status: "Pending" | "In Progress" | "Completed";
 }
 
-const data: Task[] = [
-  {
-    id: 1,
-    title: "Frontend Development",
-    assignedTo: "Ganesh",
-    dueDate: "20 Jun 2026",
-    status: "Pending",
-  },
-  {
-    id: 2,
-    title: "API Integration",
-    assignedTo: "Ravi",
-    dueDate: "22 Jun 2026",
-    status: "In Progress",
-  },
-  {
-    id: 3,
-    title: "Testing",
-    assignedTo: "Kiran",
-    dueDate: "25 Jun 2026",
-    status: "Completed",
-  },
-];
+
+
+
 
 export default function Dashboard() {
+  const [todoLoading, setTodoLoading] = useState(false);
+  const [totalPages, setTotalPages] = useState(0);
   const [isLoading, setIsLoading] = useState(false)
   const [activeTab, setActiveTab] =
-    useState("All");
+    useState("PENDING");
   const [open, setOpen] = useState(false);  
+
+  const [data, setData] = useState<Task[]>([])
+
+
+  
+const [pagination, setPagination] = useState({
+  page: 0,
+  size: 1,
+  status: "PENDING",
+});
+
+const fecthTodoList = async() => {
+
+  try {
+    setTodoLoading(true);
+    const response = await getTodoList(
+      pagination.page,
+      pagination.size,
+      pagination.status
+    );
+
+    setTotalPages(response.data.totalPages);
+
+    setData(response.data.content)
+  } catch (error) {
+    
+  }finally{
+    setTodoLoading(true);
+    console.log(data, "data");
+  }
+
+
+}
+
+useEffect(() => {
+  fecthTodoList();
+},[pagination])
 
   const filteredData =
     activeTab === "All"
@@ -90,6 +109,27 @@ export default function Dashboard() {
   }
 };
 
+  const handleTabChange = (tab: string) => {
+    
+    setActiveTab(tab);
+    console.log(tab, "tab")
+
+    setPagination((prev) => ({
+      ...prev,
+      page: 0, // reset to first page
+      status:
+        tab === "All"
+          ? ""
+          : tab === "PENDING"
+            ? "PENDING"
+            : tab === "IN_PROGRESS"
+              ? "IN_PROGRESS"
+              : "COMPLETED",
+    }));
+
+    fecthTodoList();
+  };
+
 
   return (
     <div className="bg-white rounded-xl shadow-md p-5">
@@ -116,14 +156,13 @@ export default function Dashboard() {
 
       <div className="flex flex-wrap gap-2 mb-5">
         {[
-          "All",
-          "Pending",
-          "In Progress",
-          "Completed",
+          "PENDING",
+          "IN_PROGRESS",
+          "COMPLETED",
         ].map((tab) => (
           <button
             key={tab}
-            onClick={() => setActiveTab(tab)}
+            onClick={() => handleTabChange(tab)}
             className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
               activeTab === tab
                 ? "bg-indigo-600 text-white"
@@ -149,9 +188,9 @@ export default function Dashboard() {
                 Task
               </th>
 
-              <th className="text-left px-4 py-3">
+              {/* <th className="text-left px-4 py-3">
                 Assigned To
-              </th>
+              </th> */}
 
               <th className="text-left px-4 py-3">
                 Due Date
@@ -181,9 +220,9 @@ export default function Dashboard() {
                   {task.title}
                 </td>
 
-                <td className="px-4 py-4">
+                {/* <td className="px-4 py-4">
                   {task.assignedTo}
-                </td>
+                </td> */}
 
                 <td className="px-4 py-4">
                   {task.dueDate}
@@ -218,6 +257,17 @@ export default function Dashboard() {
             ))}
           </tbody>
         </table>
+
+        <Pagination
+          page={pagination.page}
+          totalPages={totalPages}
+          onPageChange={(page) =>
+            setPagination((prev) => ({
+              ...prev,
+              page,
+            }))
+          }
+        />
       </div>
 
       {/* Mobile Cards */}
@@ -242,9 +292,9 @@ export default function Dashboard() {
               </span>
             </div>
 
-            <p className="text-sm text-gray-500">
+            {/* <p className="text-sm text-gray-500">
               Assigned: {task.assignedTo}
-            </p>
+            </p> */}
 
             <p className="text-sm text-gray-500 mt-1">
               Due: {task.dueDate}
