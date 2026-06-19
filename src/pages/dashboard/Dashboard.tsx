@@ -33,7 +33,7 @@ export default function Dashboard() {
   
 const [pagination, setPagination] = useState({
   page: 0,
-  size: 1,
+  size: 5,
   status: "PENDING",
 });
 
@@ -53,7 +53,7 @@ const fecthTodoList = async() => {
   } catch (error) {
     
   }finally{
-    setTodoLoading(true);
+    setTodoLoading(false);
     console.log(data, "data");
   }
 
@@ -102,6 +102,7 @@ useEffect(() => {
     alert("Todo Saved Successfully");
 
     setOpen(false);
+    fecthTodoList();
   } catch (error) {
     console.error(error);
   }finally{
@@ -127,7 +128,6 @@ useEffect(() => {
               : "COMPLETED",
     }));
 
-    fecthTodoList();
   };
 
 
@@ -206,14 +206,15 @@ useEffect(() => {
             </tr>
           </thead>
 
-          <tbody>
-            {filteredData.map((task) => (
+          {todoLoading ? "Loading..." :
+           <tbody>
+            {filteredData.map((task, no) => (
               <tr
                 key={task.id}
                 className="border-b hover:bg-gray-50"
               >
                 <td className="px-4 py-4">
-                  #{task.id}
+                  {no + 1}
                 </td>
 
                 <td className="px-4 py-4 font-medium">
@@ -255,7 +256,10 @@ useEffect(() => {
                 </td>
               </tr>
             ))}
-          </tbody>
+           </tbody>
+          }
+
+         
         </table>
 
         <Pagination
