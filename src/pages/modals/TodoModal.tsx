@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 interface TodoModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSave: (data: TodoFormData) => void;
   isLoading : boolean;
+  todoData : any
 }
 
 export interface TodoFormData {
@@ -20,9 +21,29 @@ const TodoModal: React.FC<TodoModalProps> = ({
   onClose,
   onSave,
   isLoading,
+  todoData,
 }) => {
+
+ useEffect(() => {
+  if (todoData) {
+    setFormData({
+      title: todoData?.title || "",
+      description: todoData?.description || "",
+      dueDate: todoData?.dueDate || "",
+      status: todoData?.status || "",
+    });
+  } else {
+    setFormData({
+      title: "",
+      description: "",
+      dueDate: "",
+      status: "",
+    });
+  }
+}, [todoData]);
+
   const [formData, setFormData] = useState<TodoFormData>({
-    title: "",
+    title: "",    
     description: "",
     dueDate: "",
     status: "PENDING",
@@ -52,7 +73,7 @@ const TodoModal: React.FC<TodoModalProps> = ({
         {/* Header */}
         <div className="flex justify-between items-center p-5 border-b">
           <h2 className="text-xl font-semibold">
-            Create Todo
+            {todoData ? "Update Todo" : "Create Todo"}
           </h2>
 
           <button
@@ -145,7 +166,7 @@ const TodoModal: React.FC<TodoModalProps> = ({
             disabled={isLoading}
             className="px-4 py-2 bg-blue-600 text-white rounded-lg"
           >
-            {isLoading ? "Saving..." : "Save Todo"}
+            {isLoading ? "Loading..." : todoData ? "Update Todo" : "Save Todo"}
           </button>
         </div>
       </div>
