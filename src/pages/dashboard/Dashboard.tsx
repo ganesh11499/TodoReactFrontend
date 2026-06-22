@@ -9,6 +9,7 @@ import {
   updateTodo,
 } from "../../service/todoService";
 import Pagination from "../../components/pagination";
+import { useNavigate } from "react-router-dom";
 
 interface Task {
   id: number;
@@ -24,6 +25,15 @@ export default function Dashboard() {
   const [activeTab, setActiveTab] = useState("PENDING");
   const [todoData, getTodoData] = useState<Task | null>(null);
   const [open, setOpen] = useState(false);
+  const navigate =useNavigate();
+
+  const user = JSON.parse(
+  localStorage.getItem("user") || "{}"
+);
+  const userName = user.fullName
+  console.log(userName, "userName");
+
+
 
   const [data, setData] = useState<Task[]>([]);
 
@@ -107,6 +117,11 @@ export default function Dashboard() {
     }
   };
 
+   const handleLogout = () => {
+    localStorage.removeItem("token");
+    navigate("/login");
+  };
+
   const handleTabChange = (tab: string) => {
     setActiveTab(tab);
     console.log(tab, "tab");
@@ -159,9 +174,27 @@ export default function Dashboard() {
 
   return (
     <div className="bg-white rounded-xl shadow-md p-5">
+         <header className="sticky top-0 z-40 bg-white border-b shadow-sm">
+  <div className="max-w-7xl mx-auto px-4 sm:px-6">
+    <div className="h-16 flex items-center justify-between">
+
+      <h1 className="text-lg sm:text-xl font-bold text-indigo-600">
+        Hii, {userName}
+      </h1>
+
+      <button
+        onClick={handleLogout}
+        className="bg-red-500 hover:bg-red-600 text-white px-3 sm:px-4 py-2 rounded-lg text-sm font-medium transition"
+      >
+        Logout
+      </button>
+
+    </div>
+  </div>
+</header>
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-        <h2 className="text-xl font-semibold">Task Management</h2>
+        <h2 className="text-xl font-semibold">Todo Management</h2>
 
         <button
           className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700"

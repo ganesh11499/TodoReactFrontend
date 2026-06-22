@@ -37,10 +37,10 @@ const TodoModal: React.FC<TodoModalProps> = ({
       title: "",
       description: "",
       dueDate: "",
-      status: "",
+      status: "PENDING",
     });
   }
-}, [todoData]);
+}, [todoData, isOpen]);
 
   const [formData, setFormData] = useState<TodoFormData>({
     title: "",    
